@@ -1,0 +1,103 @@
+MONGODB-SQL queries
+
+1.
+CREATE TABLE Customers (
+    id INT PRIMARY KEY,
+    name VARCHAR(100),
+    email VARCHAR(100),
+    address VARCHAR(255),
+    phone_number VARCHAR(50)
+);
+
+2.
+INSERT INTO Customers (id, name, email, address, phone_number) VALUES
+(1, 'John Doe', 'john@example.com', '123 Main St', '555-1234'),
+(2, 'Jane Smith', 'jane@example.com', '456 Elm St', '555-5678'),
+(3, 'Mike Johnson', 'mike@example.com', '789 Oak St', '555-9012'),
+(4, 'Sarah Williams', 'sarah@example.com', '321 Pine St', '555-3456'),
+(5, 'Chris Brown', 'chris@example.com', '654 Cedar St', '555-7890');
+db.Customers.insertMany([
+  {
+    name: 'John Doe',
+    email: 'john@example.com',
+    address: '123 Main St',
+    phone_number: '555-1234'
+  },
+  {
+    name: 'Jane Smith',
+    email: 'jane@example.com',
+    address: '456 Elm St',
+    phone_number: '555-5678'
+  },
+  {
+    name: 'Mike Johnson',
+    email: 'mike@example.com',
+    address: '789 Oak St',
+    phone_number: '555-9012'
+  },
+  {
+    name: 'Sarah Williams',
+    email: 'sarah@example.com',
+    address: '321 Pine St',
+    phone_number: '555-3456'
+  },
+  {
+    name: 'Chris Brown',
+    email: 'chris@example.com',
+    address: '654 Cedar St',
+    phone_number: '555-7890'
+  }
+]);
+
+3.
+SELECT * FROM Customers;
+db.Customers.find({});
+
+4.
+SELECT name, email FROM Customers;
+db.Customers.find({}, { name: 1, email: 1 });
+
+5.
+SELECT * FROM Customers WHERE id = 3;
+db.Customers.findOne({ _id: ObjectId("id_of_customer_3") });
+
+6.
+SELECT * FROM Customers WHERE name LIKE 'A%';
+db.Customers.find({ name: /^A/ });
+
+7.
+SELECT * FROM Customers ORDER BY name DESC;
+db.Customers.find().sort({ name: -1 });
+
+8.
+UPDATE Customers SET address = 'New Address' WHERE id = 4;
+db.Customers.updateOne({ _id: ObjectId("id_of_customer_4") }, { $set: { address: 'New Address' } });
+
+9.
+SELECT * FROM Customers ORDER BY id ASC LIMIT 3;
+db.Customers.find().sort({ _id: 1 }).limit(3);
+
+10.
+DELETE FROM Customers WHERE id = 2;
+db.Customers.deleteOne({ _id: ObjectId("id_of_customer_2") });
+
+11.
+SELECT COUNT(*) FROM Customers;
+db.Customers.countDocuments();
+
+12.
+SELECT * FROM Customers ORDER BY id ASC OFFSET 2;
+db.Customers.find().sort({ _id: 1 }).skip(2);
+
+13.
+SELECT * FROM Customers WHERE id > 2 AND name LIKE 'B%';
+db.Customers.find({ $and: [ { _id: { $gt: ObjectId("id_of_customer_2") } }, { name: /^B/ } ] });
+
+14.
+SELECT * FROM Customers WHERE id < 3 OR name LIKE '%s';
+db.Customers.find({ $or: [ { _id: { $lt: ObjectId("id_of_customer_3") } }, { name: /s$/ } ] });
+
+15.
+SELECT * FROM Customers WHERE phone_number IS NULL OR phone_number = '';
+db.Customers.find({ $or: [ { phone_number: { $exists: false } }, { phone_number: null } ] });
+
