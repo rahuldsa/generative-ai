@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Code Converter</title>
+  </head>
+  <style>
+    /* Reset default styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Style the navbar */
+    .navbar {
+      background-color: #333;
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+    }
+
+    .navbar .title {
+      font-size: 24px;
+    }
+
+    .navbar .section {
+      display: flex;
+      align-items: center;
+    }
+
+    .navbar label {
+      margin-right: 10px;
+      color: #fff;
+    }
+
+    .navbar select {
+      padding: 8px;
+      border-radius: 4px;
+      border: none;
+      background-color: #555;
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .navbar button {
+      padding: 8px 16px;
+      border-radius: 4px;
+      border: none;
+      background-color: #555;
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+      margin-left: 10px;
+    }
+
+    /* Style the container */
+    .container {
+      display: flex;
+      height: calc(100vh - 60px); /* Subtract navbar height */
+      padding: 20px;
+    }
+
+    /* Style the left section */
+    .section-left {
+      flex: 1;
+      padding: 10px;
+    }
+
+    .section-left label {
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 5px;
+    }
+
+    .section-left textarea {
+      width: 100%;
+      height: 100%;
+      resize: vertical;
+      padding: 10px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    /* Style the right section */
+    .section-right {
+      flex: 1;
+      padding: 10px;
+    }
+
+    #output-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .section-right label {
+      font-size: 16px;
+      color: #333;
+    }
+
+    .section-right textarea {
+      width: 100%;
+      height: 100%;
+      resize: vertical;
+      padding: 10px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    /* Style the convert button */
+    button {
+      display: block;
+      padding: 10px 20px;
+      background-color: #555;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #777;
+    }
+
+    #copyButton {
+      padding: 4px 8px;
+      background-color: #555;
+      color: #fff;
+    }
+
+    #copyButton:hover {
+      background-color: #777;
+    }
+
+    /* Responsive styles */
+    @media screen and (max-width: 600px) {
+      .container {
+        flex-direction: column;
+      }
+
+      .navbar {
+        flex-wrap: wrap;
+        padding: 10px;
+      }
+
+      .navbar .section {
+        margin-bottom: 10px;
+      }
+
+      .navbar label {
+        margin-right: 5px;
+      }
+    }
+  </style>
+  <body>
+    <div class="navbar">
+      <h1 class="title">Code Converter</h1>
+      <div class="section">
+        <label for="fromLanguage">From:</label>
+        <select id="fromLanguage">
+          <option value="javascript">JavaScript</option>
+          <option value="java">Java</option>
+          <option value="python">Python</option>
+          <option value="typescript">TypeScript</option>
+          <option value="php">PHP</option>
+          <option value="cpp">C++</option>
+          <option value="chash">C#</option>
+          <option value="clanguage">C</option>
+        </select>
+      </div>
+      <div class="section">
+        <label for="toLanguage">To:</label>
+        <select id="toLanguage">
+          <option value="java">Java</option>
+          <option value="javascript">JavaScript</option>
+          <option value="python">Python</option>
+          <option value="typescript">TypeScript</option>
+          <option value="php">PHP</option>
+          <option value="cpp">C++</option>
+          <option value="chash">C#</option>
+          <option value="clanguage">C</option>
+        </select>
+      </div>
+      <button id="convertButton">Convert</button>
+      <button id="debugButton">Debug</button>
+      <button id="checkButton">Check Quality</button>
+    </div>
+    <div class="container">
+      <div class="section-left">
+        <label for="input">Input Code:</label>
+        <textarea
+          id="input"
+          placeholder="Write your code here..."
+          rows="10"
+        ></textarea>
+      </div>
+      <div class="section-right">
+        <div id="output-container">
+          <label for="output">Output:</label>
+          <button id="copyButton">Copy</button>
+        </div>
+        <textarea
+          id="output"
+          placeholder="Your output will generate here..."
+          rows="10"
+          readonly
+        ></textarea>
+      </div>
+    </div>
+  </body>
+</html>
+
+<script>
+  const convertButton = document.getElementById("convertButton");
+  const debugButton = document.getElementById("debugButton");
+  const checkButton = document.getElementById("checkButton");
+  const inputTextarea = document.getElementById("input");
+  const outputTextarea = document.getElementById("output");
+  const fromLanguageSelect = document.getElementById("fromLanguage");
+  const toLanguageSelect = document.getElementById("toLanguage");
+  const copyButton = document.getElementById("copyButton");
+
+  const setLoadingState = (button) => {
+    button.textContent = "Loading...";
+    button.classList.add("loading");
+    button.style.paddingRight = "35px";
+  };
+
+  const resetLoadingState = (button) => {
+    button.classList.remove("loading");
+    button.style.paddingRight = "20px";
+  };
+
+  const handleRequest = async (url, requestBody) => {
+    setLoadingState(outputTextarea);
+
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      const data = await response.json();
+      outputTextarea.innerHTML = data.response;
+    } catch (error) {
+      outputTextarea.textContent =
+        "An error occurred while converting the code.";
+      console.error("Error:", error);
+    }
+
+    resetLoadingState(outputTextarea);
+  };
+
+  convertButton.addEventListener("click", async () => {
+    const code = inputTextarea.value;
+    const fromLanguage = fromLanguageSelect.value;
+    const toLanguage = toLanguageSelect.value;
+
+    setTimeout(() => {
+      handleRequest("/convert", { code, fromLanguage, toLanguage });
+    }, 0);
+  });
+
+  debugButton.addEventListener("click", async () => {
+    const code = inputTextarea.value;
+
+    setTimeout(() => {
+      handleRequest("/debug", { code });
+    }, 3000);
+  });
+
+  checkButton.addEventListener("click", async () => {
+    const code = inputTextarea.value;
+
+    setTimeout(() => {
+      handleRequest("/quality", { code });
+    }, 3000);
+  });
+
+  copyButton.addEventListener("click", () => {
+    const outputTextarea = document.getElementById("output");
+    outputTextarea.select();
+    document.execCommand("copy");
+    window.getSelection().removeAllRanges();
+    copyButton.textContent = "Copied!";
+  });
+
+  document.addEventListener("click", (event) => {
+    const outputTextarea = document.getElementById("output");
+
+    if (!outputTextarea.contains(event.target)) {
+      copyButton.textContent = "Copy";
+    }
+  });
+</script>
