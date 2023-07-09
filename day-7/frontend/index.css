@@ -1,0 +1,48 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  background-color: #f2f2f2;
+  padding: 20px;
+  text-align: center;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px;
+}
+
+textarea {
+  width: 400px;
+  height: 200px;
+  resize: none;
+  padding: 10px;
+}
+
+select {
+  padding: 10px;
+  margin: 0 10px;
+}
+
+button {
+  padding: 10px 20px;
+  margin: 0 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+#outputContainer {
+  margin: 20px;
+}
+
+#output {
+  border: 1px solid #ddd;
+  padding: 10px;
+}

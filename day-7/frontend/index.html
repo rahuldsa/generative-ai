@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Conversion, Debugging, and Quality Check</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <header>
+        <h1>Code Conversion, Debugging, and Quality Check</h1>
+    </header>
+    <main>
+        <div class="container">
+            <textarea id="codeInput" placeholder="Enter your code here"></textarea>
+            <select id="languageSelect">
+                <option value="python">Python</option>
+                <option value="javascript">JavaScript</option>
+                <option value="java">Java</option>
+                <!-- Add more language options as needed -->
+            </select>
+            <button id="convertButton" onclick="convertCode()">Convert</button>
+            <button id="debugButton" onclick="debugCode()">Debug</button>
+            <button id="qualityCheckButton" onclick="qualityCheck()">Quality Check</button>
+        </div>
+        <div id="outputContainer">
+            <h2>Output</h2>
+            <div id="output"></div>
+        </div>
+    </main>
+    <script src="index.js"></script>
+</body>
+</html>
