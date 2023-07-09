@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Order Form</title>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
+  </head>
+  <style>
+    /* styles.css */
+
+    /* General Styles */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    ul.flash-messages {
+      list-style: none;
+      padding: 0;
+      margin: 20px 0;
+    }
+
+    .flash-message {
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+
+    /* Order Form */
+    form {
+      display: flex;
+      flex-direction: column;
+      max-width: 400px;
+      margin-bottom: 20px;
+    }
+
+    label {
+      margin-bottom: 5px;
+    }
+
+    input[type="text"],
+    select,
+    textarea {
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    input[type="submit"] {
+      padding: 10px 20px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    input[type="submit"]:hover {
+      background-color: #45a049;
+    }
+
+    /* Orders */
+    .filter-options {
+      margin-bottom: 20px;
+    }
+
+    .filter-options a {
+      text-decoration: none;
+      color: #000;
+      padding: 5px 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-right: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    table th,
+    table td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    table th {
+      background-color: #f2f2f2;
+    }
+
+    table td:last-child {
+      text-align: center;
+    }
+
+    /* Flash Messages */
+    .flash-message.success {
+      background-color: #dff0d8;
+      color: #3c763d;
+    }
+
+    .flash-message.error {
+      background-color: #f2dede;
+      color: #a94442;
+    }
+  </style>
+  <body>
+    <h1>Order Form</h1>
+
+    <form action="{{ url_for('place_order') }}" method="POST" id="order-form">
+      <label for="customer-name">Customer Name:</label>
+      <input type="text" id="customer-name" name="customer-name" required />
+
+      <label for="dish-id">Dish:</label>
+      <select id="dish-id" name="dish-id" required></select>
+
+      <label for="order-notes">Order Notes:</label>
+      <textarea id="order-notes" name="order-notes"></textarea>
+
+      <input type="submit" value="Place Order" />
+    </form>
+
+    <ul class="flash-messages">
+      {% with messages = get_flashed_messages() %} {% for message in messages %}
+      <li class="flash-message">{{ message }}</li>
+      {% endfor %} {% endwith %}
+    </ul>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+  </body>
+</html>
+
+<script>
+  // Fetch menu data and populate select element
+  fetch("/menu")
+    .then((response) => response.json())
+    .then((menuData) => {
+      const dishSelect = document.getElementById("dish-id");
+      dishSelect.innerHTML = "";
+      menuData.forEach((dish) => {
+        const option = document.createElement("option");
+        option.value = dish.id;
+        option.textContent = dish.name;
+        dishSelect.appendChild(option);
+      });
+    })
+    .catch((error) => console.error("Error:", error));
+
+  // Fetch orders data and populate table
+  fetch("/orders")
+    .then((response) => response.json())
+    .then((ordersData) => {
+      const ordersTableBody = document.getElementById("orders-table-body");
+      ordersTableBody.innerHTML = "";
+      ordersData.forEach((order) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+        <td>${order.id}</td>
+        <td>${order.customer_name}</td>
+        <td>${order.dish_name}</td>
+        <td>${order.order_notes}</td>
+        <td>${order.status}</td>
+        <td>${order.total_price}</td>
+        <td>${
+          order.status === "received"
+            ? `<a href="/update_status/${order.id}/in progress">Start</a>`
+            : order.status === "in progress"
+            ? `<a href="/update_status/${order.id}/completed">Complete</a>`
+            : ""
+        }</td>
+      `;
+        ordersTableBody.appendChild(row);
+      });
+    })
+    .catch((error) => console.error("Error:", error));
+</script>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Order Form</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+      }
+
+      h1 {
+        text-align: center;
+        margin-top: 20px;
+      }
+
+      form {
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f5f5f5;
+      }
+
+      label {
+        display: inline-block;
+        width: 100px;
+        margin-bottom: 5px;
+      }
+
+      input[type="text"],
+      input[type="email"],
+      select,
+      textarea {
+        width: 200px;
+        padding: 5px;
+      }
+
+      button[type="submit"] {
+        padding: 5px 10px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+
+      button[type="submit"]:hover {
+        background-color: #45a049;
+      }
+
+      h2 {
+        margin-top: 40px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+
+      th,
+      td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+
+      th {
+        background-color: #4caf50;
+        color: white;
+      }
+
+      .order-status {
+        font-weight: bold;
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Order Form</h1>
+    {% with messages = get_flashed_messages() %} {% if messages %}
+    <ul class="flash-messages">
+      {% for message in messages %}
+      <li class="flash-message">{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %} {% endwith %}
+
+    <form id="order-form">
+      <label for="customer-name">Customer Name:</label>
+      <input type="text" id="customer-name" required />
+      <br />
+      <label for="customer-email">Customer Email:</label>
+      <input type="email" id="customer-email" required />
+      <br />
+      <label for="menu-item">Menu Item:</label>
+      <select id="menu-item" required>
+        <option value="">Select an item</option>
+        <option value="pizza">Pizza</option>
+        <option value="burger">Burger</option>
+        <option value="pasta">Pasta</option>
+      </select>
+      <br />
+      <label for="order-notes">Order Notes:</label>
+      <textarea id="order-notes"></textarea>
+      <br />
+      <button type="submit">Place Order</button>
+    </form>
+
+    <h2>Order List</h2>
+    <table>
+      <tr>
+        <th>ID</th>
+        <th>Customer Name</th>
+        <th>Customer Email</th>
+        <th>Menu Item</th>
+        <th>Order Notes</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+      {% for order in orders %}
+      <tr>
+        <td>{{ order.id }}</td>
+        <td>{{ order.customer_name }}</td>
+        <td>{{ order.customer_email }}</td>
+        <td>{{ order.menu_item }}</td>
+        <td>{{ order.order_notes }}</td>
+        <td class="order-status">{{ order.status }}</td>
+        <td><a href="/update_status/{{ order.id }}/Completed">Complete</a></td>
+      </tr>
+      {% endfor %}
+    </table>
+
+    <script>
+      document
+        .getElementById("order-form")
+        .addEventListener("submit", function (e) {
+          e.preventDefault(); // Prevent form submission
+          const customerName = document.getElementById("customer-name").value;
+          const customerEmail = document.getElementById("customer-email").value;
+          const menuItem = document.getElementById("menu-item").value;
+          const orderNotes = document.getElementById("order-notes").value;
+
+          // Perform the desired action with the order details (e.g., submit the order to a backend server)
+          console.log("Customer Name:", customerName);
+          console.log("Customer Email:", customerEmail);
+          console.log("Menu Item:", menuItem);
+          console.log("Order Notes:", orderNotes);
+
+          // Clear the form inputs
+          document.getElementById("customer-name").value = "";
+          document.getElementById("customer-email").value = "";
+          document.getElementById("menu-item").value = "";
+          document.getElementById("order-notes").value = "";
+        });
+    </script>
+  </body>
+</html>

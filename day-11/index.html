@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Menu Management</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+      }
+
+      h1 {
+        text-align: center;
+        margin-top: 20px;
+      }
+
+      h2 {
+        margin-top: 30px;
+      }
+
+      form {
+        margin-bottom: 20px;
+      }
+
+      label {
+        display: inline-block;
+        width: 100px;
+      }
+
+      input[type="text"],
+      select {
+        padding: 5px;
+        width: 200px;
+      }
+
+      button[type="submit"] {
+        padding: 5px 10px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+
+      button[type="submit"]:hover {
+        background-color: #45a049;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+
+      th,
+      td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+
+      th {
+        background-color: #4caf50;
+        color: white;
+      }
+
+      .text-center {
+        text-align: center;
+      }
+
+      .availability-available {
+        color: green;
+        font-weight: bold;
+      }
+
+      .availability-unavailable {
+        color: red;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Menu Management</h1>
+
+    <h2>Add Dish</h2>
+    <form id="add-dish-form">
+      <label for="dish-name">Dish Name:</label>
+      <input type="text" id="dish-name" required />
+      <br />
+      <label for="dish-availability">Availability:</label>
+      <select id="dish-availability">
+        <option value="available">Available</option>
+        <option value="unavailable">Unavailable</option>
+      </select>
+      <br />
+      <button type="submit">Add Dish</button>
+    </form>
+
+    <h2>Update Dish Availability</h2>
+    <form id="update-dish-form">
+      <label for="update-dish-name">Dish Name:</label>
+      <input type="text" id="update-dish-name" required />
+      <br />
+      <label for="update-dish-availability">New Availability:</label>
+      <select id="update-dish-availability">
+        <option value="available">Available</option>
+        <option value="unavailable">Unavailable</option>
+      </select>
+      <br />
+      <button type="submit">Update Availability</button>
+    </form>
+
+    <h2>Remove Dish</h2>
+    <form id="remove-dish-form">
+      <label for="remove-dish-name">Dish Name:</label>
+      <input type="text" id="remove-dish-name" required />
+      <br />
+      <button type="submit">Remove Dish</button>
+    </form>
+
+    <h2>Dish List</h2>
+    <table>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Availability</th>
+      </tr>
+      {% for dish in dishes %}
+      <tr>
+        <td>{{ dish.id }}</td>
+        <td>{{ dish.name }}</td>
+        <td
+          class="text-center {% if dish.availability == 'available' %}availability-available{% else %}availability-unavailable{% endif %}"
+        >
+          {{ dish.availability }}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+
+    <script>
+      // Handle form submissions
+      document
+        .getElementById("add-dish-form")
+        .addEventListener("submit", function (e) {
+          e.preventDefault(); // Prevent form submission
+          const dishName = document.getElementById("dish-name").value;
+          const availability =
+            document.getElementById("dish-availability").value;
+
+          // Perform the desired action with the dish name and availability (e.g., add the dish to the menu)
+          console.log("Add dish:", dishName, "Availability:", availability);
+
+          // Clear the form inputs
+          document.getElementById("dish-name").value = "";
+          document.getElementById("dish-availability").value = "available";
+        });
+
+      document
+        .getElementById("update-dish-form")
+        .addEventListener("submit", function (e) {
+          e.preventDefault(); // Prevent form submission
+          const dishName = document.getElementById("update-dish-name").value;
+          const availability = document.getElementById(
+            "update-dish-availability"
+          ).value;
+
+          // Perform the desired action with the dish name and availability (e.g., update the dish availability on the menu)
+          console.log(
+            "Update dish:",
+            dishName,
+            "New Availability:",
+            availability
+          );
+
+          // Clear the form inputs
+          document.getElementById("update-dish-name").value = "";
+          document.getElementById("update-dish-availability").value =
+            "available";
+        });
+
+      document
+        .getElementById("remove-dish-form")
+        .addEventListener("submit", function (e) {
+          e.preventDefault(); // Prevent form submission
+          const dishName = document.getElementById("remove-dish-name").value;
+
+          // Perform the desired action with the dish name (e.g., remove the dish from the menu)
+          console.log("Remove dish:", dishName);
+
+          // Clear the form input
+          document.getElementById("remove-dish-name").value = "";
+        });
+    </script>
+  </body>
+</html>
