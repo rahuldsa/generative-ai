@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1>Place Order</h1>
+    <form method="POST" action="{{ url_for('place_order') }}">
+      <label for="customer_name">Customer Name:</label>
+      <input type="text" id="customer_name" name="customer_name" required />
+      <label for="selected_dish_ids">Select Dishes:</label>
+      <select id="selected_dish_ids" name="selected_dish_ids" multiple required>
+        {% for dish in dishes %}
+        <option value="{{ dish.id }}">{{ dish.name }}</option>
+        {% endfor %}
+      </select>
+      <input type="submit" value="Place Order" />
+    </form>
+  </body>
+</html>

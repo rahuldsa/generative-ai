@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1>Order Feedback</h1>
+    <p>Order ID: {{ order.id }}</p>
+    <p>Customer Name: {{ order.customer_name }}</p>
+    <form
+      method="POST"
+      action="{{ url_for('order_feedback', order_id=order.id) }}"
+    >
+      <label for="rating">Rating:</label>
+      <input type="number" id="rating" name="rating" min="1" max="5" required />
+      <label for="review">Review:</label>
+      <textarea id="review" name="review" required></textarea>
+      <input type="submit" value="Submit Feedback" />
+    </form>
+  </body>
+</html>
