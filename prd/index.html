@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.1/socket.io.min.js"></script>
+    <script>
+      // Connect to the WebSocket server
+      const socket = io();
+
+      // Handle incoming WebSocket messages
+      socket.on("order_status_update", (message) => {
+        const { orderId, status } = message;
+
+        // Update the order status in the user interface
+        const orderStatusElement = document.getElementById("order-status");
+        orderStatusElement.textContent = `Order ID: ${orderId}, Status: ${status}`;
+      });
+    </script>
+  </head>
+  <body>
+    <h1>Real-time Order Status</h1>
+    <div id="order-status">Waiting for order status updates...</div>
+  </body>
+</html>
