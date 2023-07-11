@@ -101,3 +101,113 @@ db.Customers.find({ $or: [ { _id: { $lt: ObjectId("id_of_customer_3") } }, { nam
 SELECT * FROM Customers WHERE phone_number IS NULL OR phone_number = '';
 db.Customers.find({ $or: [ { phone_number: { $exists: false } }, { phone_number: null } ] });
 
+16.
+CREATE TABLE Restaurants (
+    id INT PRIMARY KEY,
+    name VARCHAR(100),
+    cuisine_type VARCHAR(100),
+    location VARCHAR(255),
+    average_rating DECIMAL(3,2),
+    delivery_available BOOLEAN
+);
+db.createCollection("Restaurants");
+
+17.
+INSERT INTO Restaurants (id, name, cuisine_type, location, average_rating, delivery_available)
+VALUES
+    (1, 'Restaurant A', 'Italian', 'New York', 4.5, true),
+    (2, 'Restaurant B', 'Chinese', 'London', 4.2, false),
+    (3, 'Restaurant C', 'Indian', 'Paris', 3.8, true),
+    (4, 'Restaurant D', 'Mexican', 'Los Angeles', 4.7, true),
+    (5, 'Restaurant E', 'Japanese', 'Tokyo', 4.9, true);
+db.Restaurants.insertMany([
+    {
+        _id: ObjectId(),
+        name: 'Restaurant A',
+        cuisine_type: 'Italian',
+        location: 'New York',
+        average_rating: 4.5,
+        delivery_available: true
+    },
+    {
+        _id: ObjectId(),
+        name: 'Restaurant B',
+        cuisine_type: 'Chinese',
+        location: 'London',
+        average_rating: 4.2,
+        delivery_available: false
+    },
+    {
+        _id: ObjectId(),
+        name: 'Restaurant C',
+        cuisine_type: 'Indian',
+        location: 'Paris',
+        average_rating: 3.8,
+        delivery_available: true
+    },
+    {
+        _id: ObjectId(),
+        name: 'Restaurant D',
+        cuisine_type: 'Mexican',
+        location: 'Los Angeles',
+        average_rating: 4.7,
+        delivery_available: true
+    },
+    {
+        _id: ObjectId(),
+        name: 'Restaurant E',
+        cuisine_type: 'Japanese',
+        location: 'Tokyo',
+        average_rating: 4.9,
+        delivery_available: true
+    }
+]);
+
+18.
+SELECT *
+FROM Restaurants
+ORDER BY average_rating DESC;
+db.Restaurants.find().sort({ average_rating: -1 });
+
+19.
+SELECT *
+FROM Restaurants
+WHERE delivery_available = true AND average_rating > 4;
+db.Restaurants.find({ delivery_available: true, average_rating: { $gt: 4 } });
+
+20.
+SELECT *
+FROM Restaurants
+WHERE cuisine_type IS NULL;
+db.Restaurants.find({ cuisine_type: { $exists: false } });
+
+21.
+SELECT COUNT(*)
+FROM Restaurants
+WHERE delivery_available = true;
+db.Restaurants.countDocuments({ delivery_available: true });
+
+22.
+SELECT *
+FROM Restaurants
+WHERE location LIKE '%New York%';
+db.Restaurants.find({ location: /New York/ });
+
+23.
+SELECT AVG(average_rating)
+FROM Restaurants;
+db.Restaurants.aggregate([{ $group: { _id: null, average_rating: { $avg: "$average_rating" } } }]);
+
+24.
+SELECT *
+FROM Restaurants
+ORDER BY average_rating DESC
+LIMIT 5;
+db.Restaurants.find().sort({ average_rating: -1 }).limit(5);
+
+25.
+DELETE FROM Restaurants
+WHERE id = 3;
+db.Restaurants.deleteOne({ _id: ObjectId("3") });
+
+
