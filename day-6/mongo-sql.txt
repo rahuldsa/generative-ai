@@ -210,4 +210,513 @@ DELETE FROM Restaurants
 WHERE id = 3;
 db.Restaurants.deleteOne({ _id: ObjectId("3") });
 
+26.
+CREATE TABLE Rides (
+    id INT PRIMARY KEY,
+    driver_id INT,
+    passenger_id INT,
+    start_location VARCHAR(255),
+    end_location VARCHAR(255),
+    distance DECIMAL(5,2),
+    ride_time DECIMAL(5,2),
+    fare DECIMAL(6,2)
+);
+db.createCollection("Rides");
+
+27.
+INSERT INTO Rides (id, driver_id, passenger_id, start_location, end_location, distance, ride_time, fare)
+VALUES
+    (1, 101, 201, 'A', 'B', 10.5, 20.0, 15.0),
+    (2, 102, 202, 'C', 'D', 5.3, 10.0, 8.5),
+    (3, 103, 203, 'E', 'F', 8.2, 15.0, 12.0),
+    (4, 101, 204, 'G', 'H', 12.1, 25.0, 18.0),
+    (5, 104, 205, 'I', 'J', 6.7, 12.0, 9.5);
+db.Rides.insertMany([
+    {
+        _id: ObjectId(),
+        driver_id: ObjectId("..."),
+        passenger_id: ObjectId("..."),
+        start_location: 'A',
+        end_location: 'B',
+        distance: 10.5,
+        ride_time: 20.0,
+        fare: 15.0
+    },
+    {
+        _id: ObjectId(),
+        driver_id: ObjectId("..."),
+        passenger_id: ObjectId("..."),
+        start_location: 'C',
+        end_location: 'D',
+        distance: 5.3,
+        ride_time: 10.0,
+        fare: 8.5
+    },
+    {
+        _id: ObjectId(),
+        driver_id: ObjectId("..."),
+        passenger_id: ObjectId("..."),
+        start_location: 'E',
+        end_location: 'F',
+        distance: 8.2,
+        ride_time: 15.0,
+        fare: 12.0
+    },
+    {
+        _id: ObjectId(),
+        driver_id: ObjectId("..."),
+        passenger_id: ObjectId("..."),
+        start_location: 'G',
+        end_location: 'H',
+        distance: 12.1,
+        ride_time: 25.0,
+        fare: 18.0
+    },
+    {
+        _id: ObjectId(),
+        driver_id: ObjectId("..."),
+        passenger_id: ObjectId("..."),
+        start_location: 'I',
+        end_location: 'J',
+        distance: 6.7,
+        ride_time: 12.0,
+        fare: 9.5
+    }
+]);
+
+28.
+SELECT *
+FROM Rides
+ORDER BY fare DESC;
+db.Rides.find().sort({ fare: -1 });
+
+29.
+SELECT SUM(distance) AS total_distance, SUM(fare) AS total_fare
+FROM Rides;
+db.Rides.aggregate([
+    { $group: { _id: null, total_distance: { $sum: "$distance" }, total_fare: { $sum: "$fare" } } }
+]);
+
+30.
+SELECT AVG(ride_time) AS average_ride_time
+FROM Rides;
+db.Rides.aggregate([{ $group: { _id: null, average_ride_time: { $avg: "$ride_time" } } }]);
+
+31.
+SELECT *
+FROM Rides
+WHERE start_location LIKE '%Downtown%' OR end_location LIKE '%Downtown%';
+db.Rides.find({ $or: [{ start_location: /Downtown/ }, { end_location: /Downtown/ }] });
+
+32.
+SELECT COUNT(*)
+FROM Rides
+WHERE driver_id = <driver_id>;
+db.Rides.countDocuments({ driver_id: ObjectId("...") });
+
+33.
+UPDATE Rides
+SET fare = <new_fare>
+WHERE id = 4;
+db.Rides.updateOne({ _id: ObjectId("4") }, { $set: { fare: <new_fare> } });
+
+34.
+SELECT driver_id, SUM(fare) AS total_fare
+FROM Rides
+GROUP BY driver_id;
+db.Rides.aggregate([{ $group: { _id: "$driver_id", total_fare: { $sum: "$fare" } } }]);
+
+35.
+DELETE FROM Rides
+WHERE id = 2;
+db.Rides.deleteOne({ _id: ObjectId("2") });
+
+36.
+-- Highest fare
+SELECT *
+FROM Rides
+WHERE fare = (SELECT MAX(fare) FROM Rides);
+
+-- Lowest fare
+SELECT *
+FROM Rides
+WHERE fare = (SELECT MIN(fare) FROM Rides);
+// Highest fare
+db.Rides.find().sort({ fare: -1 }).limit(1);
+
+// Lowest fare
+db.Rides.find().sort({ fare: 1 }).limit(1);
+
+37.
+SELECT driver_id, AVG(fare) AS average_fare, AVG(distance) AS average_distance
+FROM Rides
+GROUP BY driver_id;
+db.Rides.aggregate([
+  {
+    $group: {
+      _id: "$driver_id",
+      average_fare: { $avg: "$fare" },
+      average_distance: { $avg: "$distance" }
+    }
+  }
+]);
+
+38.
+SELECT driver_id, COUNT(*) AS ride_count
+FROM Rides
+GROUP BY driver_id
+HAVING COUNT(*) > 5;
+db.Rides.aggregate([
+  {
+    $group: {
+      _id: "$driver_id",
+      ride_count: { $sum: 1 }
+    }
+  },
+  {
+    $match: {
+      ride_count: { $gt: 5 }
+    }
+  }
+]);
+
+39.
+SELECT Drivers.name
+FROM Rides
+INNER JOIN Drivers ON Rides.driver_id = Drivers.driver_id
+WHERE fare = (SELECT MAX(fare) FROM Rides);
+db.Rides.aggregate([
+  {
+    $lookup: {
+      from: "Drivers",
+      localField: "driver_id",
+      foreignField: "driver_id",
+      as: "driver"
+    }
+  },
+  {
+    $unwind: "$driver"
+  },
+  {
+    $sort: { fare: -1 }
+  },
+  {
+    $limit: 1
+  },
+  {
+    $project: {
+      _id: 0,
+      driver_name: "$driver.name"
+    }
+  }
+]);
+
+40.
+SELECT driver_id, SUM(fare) AS total_earnings
+FROM Rides
+GROUP BY driver_id
+ORDER BY total_earnings DESC
+LIMIT 3;
+db.Rides.aggregate([
+  {
+    $group: {
+      _id: "$driver_id",
+      total_earnings: { $sum: "$fare" }
+    }
+  },
+  {
+    $sort: { total_earnings: -1 }
+  },
+  {
+    $limit: 3
+  }
+]);
+
+41.
+SELECT *
+FROM Rides
+WHERE ride_date >= CURDATE() - INTERVAL 7 DAY;
+db.Rides.find({
+  ride_date: {
+    $gte: new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000)
+  }
+});
+
+42.
+SELECT *
+FROM Rides
+WHERE end_location IS NULL;
+db.Rides.find({ end_location: { $exists: false } });
+
+43.
+SELECT id, fare / distance AS fare_per_mile
+FROM Rides
+ORDER BY fare_per_mile DESC;
+db.Rides.aggregate([
+  {
+    $project: {
+      _id: 1,
+      fare_per_mile: { $divide: ["$fare", "$distance"] }
+    }
+  },
+  {
+    $sort: { fare_per_mile: -1 }
+  }
+]);
+
+44.
+SELECT Rides.*, Drivers.name AS driver_name, Passengers.name AS passenger_name
+FROM Rides
+JOIN Drivers ON Rides.driver_id = Drivers.driver_id
+JOIN Passengers ON Rides.passenger_id = Passengers.passenger_id;
+db.Rides.aggregate([
+  {
+    $lookup: {
+      from: "Drivers",
+      localField: "driver_id",
+      foreignField: "driver_id",
+      as: "driver"
+    }
+  },
+  {
+    $lookup: {
+      from: "Passengers",
+      localField: "passenger_id",
+      foreignField: "passenger_id",
+      as: "passenger"
+    }
+  },
+  {
+    $unwind: "$driver"
+  },
+  {
+    $unwind: "$passenger"
+  },
+  {
+    $project: {
+      _id: 0,
+      ride: "$$ROOT",
+      driver_name: "$driver.name",
+      passenger_name: "$passenger.name"
+    }
+  }
+]);
+
+45.
+ALTER TABLE Rides
+ADD COLUMN tip DECIMAL(6,2);
+db.Rides.updateMany({}, { $set: { tip: null } });
+
+46.
+SELECT *
+FROM Rides
+UNION ALL
+SELECT *
+FROM FutureRides;
+db.Rides.aggregate([
+  { $unionWith: "FutureRides" }
+]);
+
+47.
+SELECT driver_id, SUM(fare) AS total_fare,
+       RANK() OVER (ORDER BY SUM(fare) DESC) AS rank
+FROM Rides
+GROUP BY driver_id;
+db.Rides.aggregate([
+  {
+    $group: {
+      _id: "$driver_id",
+      total_fare: { $sum: "$fare" }
+    }
+  },
+  {
+    $sort: { total_fare: -1 }
+  },
+  {
+    $project: {
+      _id: 0,
+      driver_id: "$_id",
+      total_fare: 1,
+      rank: { $rank: {} }
+    }
+  }
+]);
+
+48.
+SELECT *
+FROM Rides
+WHERE driver_id IN (
+  SELECT driver_id
+  FROM Rides
+  GROUP BY driver_id
+  ORDER BY COUNT(*) DESC
+  LIMIT 5
+);
+db.Rides.find({
+  driver_id: {
+    $in: db.Rides.aggregate([
+      {
+        $group: {
+          _id: "$driver_id",
+          ride_count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { ride_count: -1 }
+      },
+      {
+        $limit: 5
+      },
+      {
+        $project: {
+          _id: 0,
+          driver_id: "$_id"
+        }
+      }
+    ]).map(doc => doc.driver_id)
+  }
+});
+
+49.
+SELECT *,
+       CASE
+         WHEN distance < 5 THEN 'Short'
+         WHEN distance BETWEEN 5 AND 15 THEN 'Medium'
+         ELSE 'Long'
+       END AS distance_class
+FROM Rides;
+db.Rides.aggregate([
+  {
+    $project: {
+      _id: 1,
+      driver_id: 1,
+      passenger_id: 1,
+      start_location: 1,
+      end_location: 1,
+      distance: 1,
+      ride_time: 1,
+      fare: 1,
+      distance_class: {
+        $switch: {
+          branches: [
+            { case: { $lt: ["$distance", 5] }, then: "Short" },
+            { case: { $and: [{ $gte: ["$distance", 5] }, { $lte: ["$distance", 15] }] }, then: "Medium" }
+          ],
+          default: "Long"
+        }
+      }
+    }
+  }
+]);
+
+50.
+SELECT driver_id, VARIANCE(fare) AS fare_variance,
+       STDDEV(fare) AS fare_stddev
+FROM Rides
+GROUP BY driver_id;
+db.Rides.aggregate([
+  {
+    $group: {
+      _id: "$driver_id",
+      fare_variance: { $variancePop: "$fare" },
+      fare_stddev: { $stdDevPop: "$fare" }
+    }
+  }
+]);
+
+51.
+SELECT DAYNAME(ride_date) AS busiest_day, COUNT(*) AS ride_count
+FROM Rides
+GROUP BY DAYOFWEEK(ride_date)
+ORDER BY ride_count DESC
+LIMIT 1;
+db.Rides.aggregate([
+  {
+    $group: {
+      _id: { $dayOfWeek: "$ride_date" },
+      ride_count: { $sum: 1 }
+    }
+  },
+  {
+    $sort: { ride_count: -1 }
+  },
+  {
+    $limit: 1
+  },
+  {
+    $project: {
+      _id: 0,
+      busiest_day: { $dayOfWeek: { date: new Date(), isoWeek: false } },
+      ride_count: 1
+    }
+  }
+]);
+
+52.
+WITH RECURSIVE SubsequentRides AS (
+  SELECT *
+  FROM Rides
+  WHERE id = :given_ride_id
+  UNION ALL
+  SELECT Rides.*
+  FROM Rides
+  JOIN SubsequentRides ON Rides.id = SubsequentRides.next_ride_id
+)
+SELECT *
+FROM SubsequentRides;
+function findSubsequentRides(rideId) {
+  const subsequentRides = [];
+  let currentRide = db.Rides.findOne({ id: rideId });
+
+  while (currentRide) {
+    subsequentRides.push(currentRide);
+    if (!currentRide.next_ride_id) {
+      break;
+    }
+    currentRide = db.Rides.findOne({ id: currentRide.next_ride_id });
+  }
+
+  return subsequentRides;
+}
+
+findSubsequentRides(:given_ride_id);
+
+53.
+SELECT driver_id, passenger_id, SUM(distance) AS total_distance,
+       SUM(fare) AS total_fare
+FROM Rides
+GROUP BY driver_id, passenger_id;
+db.Rides.aggregate([
+  {
+    $group: {
+      _id: { driver_id: "$driver_id", passenger_id: "$passenger_id" },
+      total_distance: { $sum: "$distance" },
+      total_fare: { $sum: "$fare" }
+    }
+  },
+  {
+    $project: {
+      _id: 0,
+      driver_id: "$_id.driver_id",
+      passenger_id: "$_id.passenger_id",
+      total_distance: 1,
+      total_fare: 1
+    }
+  }
+]);
+
+54.
+SELECT *
+FROM Rides
+WHERE 'business' IN (SELECT UNNEST(tags) FROM Rides);
+db.Rides.find({ tags: "business" });
+
+55.
+SELECT *
+FROM Rides
+WHERE notes LIKE '%airport%';
+db.Rides.find({ notes: /airport/ });
+
+
+
 
