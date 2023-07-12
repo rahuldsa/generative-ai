@@ -1,4 +1,5 @@
-from flask import Flask
+import json
+from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
@@ -24,6 +25,7 @@ def get_dishes():
     """Retrieve all dishes from the menu."""
     return jsonify(menu)
 
+
 @app.route('/dishes/<int:dish_id>', methods=['GET'])
 def get_dish(dish_id):
     """Retrieve a specific dish from the menu by ID."""
@@ -32,6 +34,7 @@ def get_dish(dish_id):
         return jsonify(dish)
     else:
         return jsonify({'error': 'Dish not found.'}), 404
+
 
 @app.route('/dishes', methods=['POST'])
 def add_dish():
@@ -102,16 +105,16 @@ def get_orders():
     """Retrieve all orders, with an optional filter by status."""
     status = request.args.get('status')
     if status:
-        filtered_orders = [order for order in orders if order['status'] == status]
+        filtered_orders = [
+            order for order in orders if order['status'] == status]
         return jsonify(filtered_orders)
     else:
         return jsonify(orders)
 
 
-import json
-
 MENU_FILE = 'menu.json'
 ORDERS_FILE = 'orders.json'
+
 
 def load_data():
     """Load the menu and order data from JSON files."""
@@ -119,6 +122,7 @@ def load_data():
         menu = json.load(f)
     with open(ORDERS_FILE, 'r') as f:
         orders = json.load(f)
+
 
 def save_data():
     """Save the menu and order data to JSON files."""
